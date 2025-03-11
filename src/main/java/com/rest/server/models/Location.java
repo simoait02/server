@@ -1,20 +1,39 @@
 package com.rest.server.models;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "locations")
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Setter;
+
+@Setter
 public class Location {
-    @Id
-    private String locationId;
     private String locationStreet;
     private String locationCity;
     private String locationState;
     private String locationCountry;
     private String locationTimezone;
+
+    @JsonProperty("street")
+    public String getLocationStreet() {
+        return locationStreet;
+    }
+
+    @JsonProperty("city")
+    public String getLocationCity() {
+        return locationCity;
+    }
+
+    @JsonProperty("state")
+    public String getLocationState() {
+        return locationState;
+    }
+
+    @JsonProperty("country")
+    public String getLocationCountry() {
+        return locationCountry;
+    }
+
+    @JsonProperty("timezone")
+    public String getLocationTimezone() {
+        return locationTimezone;
+    }
+
 }

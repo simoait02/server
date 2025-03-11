@@ -2,6 +2,7 @@ package com.rest.server.services;
 
 import com.rest.server.exception.ResourceNotFoundException;
 import com.rest.server.models.User;
+import com.rest.server.models.UserDTO;
 import com.rest.server.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import java.util.Optional;
-
+import org.bson.types.ObjectId;
+import java.util.Optional;
 @Service
 public class UserService {
     @Autowired
@@ -22,15 +24,31 @@ public class UserService {
         return userRepository.findAll(pageable);
     }
 
-    public Optional<User> singleUser(String id){
-        return Optional.ofNullable(userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id)));
-    }
+//    public Optional<User> singleUser(String id){
+//        return Optional.ofNullable(userRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id)));
+//    }
     public Page<User> searchUsers(String query, Pageable pageable) {
         // Implement search logic for users
         // Example: Search by firstName, lastName, or email
         return userRepository.findByUserFirstNameContainingIgnoreCaseOrUserLastNameContainingIgnoreCaseOrUserEmailContainingIgnoreCase(query, query, query, pageable);
     }
+//    public User findUserById(String id) {
+//        return userRepository.findById(id)
+//                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + id));
+//    }
+// In UserService.java
+    public UserDTO findUserById(String id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return new UserDTO(
+                user.getId(),
+                user.getUserFirstName(),
+                user.getUserLastName(),
+                user.getUserEmail()
+        );
+    }
+
     public User createUser(User user) {
         if (userRepository.findByUserEmail(user.getUserEmail()).isPresent()) {
             throw new RuntimeException("Email already exists");
@@ -44,7 +62,10 @@ public class UserService {
         user.setUserPassword(encryptedPassword);
         return userRepository.save(user);
     }
-
+    public Optional<User> singleUser(String id) {
+        // No projections or custom queries
+        return userRepository.findById(id);
+    }
     private void validateUserFields(User user) {
         if (user.getUserFirstName() == null || user.getUserFirstName().isEmpty()) {
             throw new RuntimeException("First name is required");

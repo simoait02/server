@@ -11,6 +11,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -23,7 +26,20 @@ public class LocationService {
     public Page<Location> allLocations(Pageable pageable) {
         return locationRepository.findAll(pageable);
     }
-
+    // In LocationService.java
+    // In LocationService.java
+    public List<Location> getAllLocations() {
+        try {
+            // Even if the repository returns null, we convert to empty list
+            List<Location> locations = locationRepository.findAll();
+            return locations != null ? locations : Collections.emptyList();
+        } catch (Exception e) {
+            // Log the exception
+            System.err.println("Error retrieving locations: " + e.getMessage());
+            // Return empty list instead of null
+            return Collections.emptyList();
+        }
+    }
     public Optional<Location> singleLocation(String id){
         return Optional.ofNullable(locationRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Location not found with ID: " + id)));
     }
@@ -43,7 +59,6 @@ public class LocationService {
                     return locationRepository.save(location);
                 }).orElseThrow(() -> new RuntimeException("Location not found"));
     }
-
     public void deleteLocation(String id) {
         locationRepository.deleteById(id);
     }

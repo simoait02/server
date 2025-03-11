@@ -36,7 +36,7 @@ public class PostService {
 
     public Page<Post> findPostsByTag(String tagName, int page, int size) {
         Optional<Tag> tagOptional = tagRepository.findByTagName(tagName);
-        if (!tagOptional.isPresent()) {
+        if (tagOptional.isEmpty()) {
             throw new RuntimeException("Tag not found");
         }
         String tagId = tagOptional.get().getTagId();

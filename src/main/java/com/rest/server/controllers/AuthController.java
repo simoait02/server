@@ -32,7 +32,7 @@ public class AuthController {
 
         if (userOptional.isPresent() && passwordEncoder.matches(loginDto.getUserPassword(), userOptional.get().getUserPassword())) {
             Map<String, String> response = new HashMap<>();
-            response.put("userId", userOptional.get().getUserId());
+            response.put("userId", userOptional.get().getId());
             response.put("message", "User authenticated successfully");
 
             return ResponseEntity.ok().body(response);

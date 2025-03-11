@@ -25,4 +25,5 @@ public class Post {
 
     @NotNull(message = "Owner cannot be null")
     private String postOwnerId;
+
 }

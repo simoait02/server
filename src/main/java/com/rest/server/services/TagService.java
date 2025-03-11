@@ -40,7 +40,10 @@ public class TagService {
                     return tagRepository.save(tag);
                 }).orElseThrow(() -> new RuntimeException("Tag not found"));
     }
-
+    public Tag findTagByName(String tagName) {
+        return tagRepository.findByTagName(tagName)
+                .orElseThrow(() -> new IllegalArgumentException("Tag not found: " + tagName));
+    }
     public void deleteTag(String id) {
         tagRepository.deleteById(id);
     }

@@ -1,0 +1,198 @@
+# schema.graphql
+
+scalar DateTime
+
+type User {
+    id: ID!
+    title: String
+    firstName: String
+    lastName: String
+    picture: String
+    gender: String
+    email: String
+    dateOfBirth: DateTime
+    registerDate: DateTime
+    phone: String
+    location: Location
+}
+
+type Location {
+    locationStreet: String
+    locationCity: String!
+    locationState: String!
+    locationCountry: String!
+    locationTimezone: String!
+}
+
+type Post {
+    postId: ID!
+    postText: String!
+    postImage: String!
+    postLikes: Int!
+    postLink: String
+    postTags: [String!]!
+    postPublishDate: DateTime!
+    ownerId: User!
+}
+
+type Comment {
+    commentId: ID!
+    commentMessage: String!
+    commentOwner: ID!
+    commentPost: ID!
+    commentPublishDate: DateTime!
+}
+
+type PaginatedUsers {
+    data: [User!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+}
+
+type PaginatedPosts {
+    data: [Post!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+}
+
+type PaginatedComments {
+    data: [Comment!]!
+    total: Int!
+    page: Int!
+    limit: Int!
+}
+
+input UserCreateInput {
+    title: String
+    firstName: String!
+    lastName: String!
+    email: String!
+    password: String!
+    gender: String
+    dateOfBirth: String
+    phone: String
+    picture: String
+}
+
+input UserUpdateInput {
+    title: String
+    firstName: String
+    lastName: String
+    gender: String
+    dateOfBirth: String
+    phone: String
+    picture: String
+}
+
+input LocationInput {
+    street: String
+    city: String!
+    state: String!
+    country: String!
+    timezone: String!
+}
+
+input PostCreateInput {
+    postText: String!
+    postImage: String!
+    postTags: [String!]!
+    postOwnerId: ID!
+}
+
+
+input CommentCreateInput {
+    commentMessage: String!
+    commentOwner: ID!
+    commentPost: ID!
+}
+
+input CommentUpdateInput {
+    commentMessage: String
+    commentOwner: ID
+    commentPost: ID
+}
+
+type Tag {
+    tagId: ID!
+    tagName: String!
+}
+input TagInput {
+    tagName: String!
+}
+type Query {
+    # User Queries
+    locations: [Location!]!
+    users(
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "registerDate"
+    ): PaginatedUsers
+    user(id: ID!): User
+
+    # Post Queries
+    posts(
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedPosts
+    postsByUser(
+        userId: ID!
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedPosts
+    postsByTag(
+        tag: String!
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedPosts
+    post(id: ID!): Post
+
+    # Comment Queries
+    comments(
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedComments
+    commentsByPost(
+        postId: ID!
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedComments
+    commentsByUser(
+        userId: ID!
+        page: Int = 1
+        limit: Int = 10
+        sortBy: String = "publishDate"
+    ): PaginatedComments
+
+    # Tag Query
+    tags: [String!]!
+}
+
+type Mutation {
+    # User Mutations
+    createUser(input: UserCreateInput!): User
+    updateUser(id: ID!, input: UserCreateInput!): User
+    deleteUser(id: ID!): ID
+
+    # Post Mutations
+    createPost(input: PostCreateInput!): Post
+    updatePost(id: ID!, input: PostCreateInput!): Post
+    deletePost(id: ID!): ID
+
+    # Comment Mutations
+    createComment(input: CommentCreateInput!): Comment
+    deleteComment(id: ID!): ID
+
+    createLocation(input: LocationInput!): Location
+    updateLocation(id: ID!, input: LocationInput!): Location
+    deleteLocation(id: ID!): ID
+    createTag(input: TagInput!): Tag
+    updateTag(id: ID!, input: TagInput!): Tag
+    deleteTag(id: ID!): ID
+}
