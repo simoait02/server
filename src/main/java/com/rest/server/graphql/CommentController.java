@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-public class CommentGraphQLController {
+public class CommentController {
 
     @Autowired
     private CommentService commentService;
@@ -33,7 +33,6 @@ public class CommentGraphQLController {
     @Autowired
     private PostService postService;
 
-    // Query methods
     @QueryMapping
     public Map<String, Object> comments(
             @Argument int page,
@@ -95,17 +94,14 @@ public class CommentGraphQLController {
         return result;
     }
 
-    // Mutation methods
     @MutationMapping
     public Comment createComment(@Argument CommentCreateInput input) {
         Comment comment = new Comment();
         comment.setCommentMessage(input.getCommentMessage());
 
-        // Assign IDs directly as Strings
         comment.setCommentOwnerId(input.getCommentOwner());
         comment.setCommentPostId(input.getCommentPost());
 
-        // Set other fields (e.g., commentPublishDate)
         comment.setCommentPublishDate(OffsetDateTime.now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
@@ -120,17 +116,14 @@ public class CommentGraphQLController {
         Comment comment = commentService.singleComment(id)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
-        // Update fields
         if (input.getCommentMessage() != null) {
             comment.setCommentMessage(input.getCommentMessage());
         }
 
-        // Only update owner ID if provided
         if (input.getCommentOwner() != null) {
             comment.setCommentOwnerId(input.getCommentOwner());
         }
 
-        // Only update post ID if provided
         if (input.getCommentPost() != null) {
             comment.setCommentPostId(input.getCommentPost());
         }
@@ -144,25 +137,21 @@ public class CommentGraphQLController {
         return id;
     }
 
-    // Field resolver for "commentOwner" returning ID as string
     @SchemaMapping(typeName = "Comment", field = "commentOwner")
     public String getCommentOwner(Comment comment) {
         return comment.getCommentOwnerId();
     }
 
-    // Field resolver for "commentPost" returning ID as string
     @SchemaMapping(typeName = "Comment", field = "commentPost")
     public String getCommentPost(Comment comment) {
         return comment.getCommentPostId();
     }
 
-    // Keep the "id" resolver
     @SchemaMapping(typeName = "Comment", field = "id")
     public String getId(Comment comment) {
         return comment.getCommentId();
     }
 
-    // Input class for comment creation
     public static class CommentCreateInput {
 
         @JsonProperty("commentMessage")
@@ -174,7 +163,6 @@ public class CommentGraphQLController {
         @JsonProperty("commentPost")
         private String commentPost;
 
-        // Getters and setters
         public String getCommentMessage() { return commentMessage; }
         public void setCommentMessage(String commentMessage) { this.commentMessage = commentMessage; }
 
@@ -185,7 +173,6 @@ public class CommentGraphQLController {
         public void setCommentPost(String commentPost) { this.commentPost = commentPost; }
     }
 
-    // Input class for comment updates
     public static class CommentUpdateInput {
 
         @JsonProperty("commentMessage")
@@ -197,7 +184,6 @@ public class CommentGraphQLController {
         @JsonProperty("commentPost")
         private String commentPost;
 
-        // Getters and setters
         public String getCommentMessage() { return commentMessage; }
         public void setCommentMessage(String commentMessage) { this.commentMessage = commentMessage; }
 

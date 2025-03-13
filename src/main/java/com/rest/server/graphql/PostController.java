@@ -33,7 +33,7 @@ public class PostController {
     private PostService postService;
 
     @Autowired
-    private UserService userService;  // You'll need to inject your UserService
+    private UserService userService;
 
     @SchemaMapping(typeName = "Post", field = "ownerId")
     public UserDTO owner(Post post) {
@@ -41,31 +41,25 @@ public class PostController {
         if (user == null) {
             throw new RuntimeException("User not found");
         }
-        // Ensure required fields are populated
         if (user.getFirstName() == null || user.getLastName() == null) {
             throw new RuntimeException("User data is incomplete");
         }
         return user;
     }
-    // Query to get paginated posts
     @QueryMapping
     public Map<String, Object> posts(
             @Argument Integer page,
             @Argument Integer limit,
             @Argument String sortBy) {
 
-        // Default values are set in the schema, but adding safety checks
         int pageNum = page != null ? page : 1;
         int pageSize = limit != null ? limit : 10;
         String sortField = sortBy != null ? sortBy : "postPublishDate";
 
-        // Create pageable object - adjust for 0-based page index
         Pageable pageable = PageRequest.of(pageNum - 1, pageSize, Sort.by(sortField));
 
-        // Get posts from service
         Page<Post> postsPage = postService.allPosts(pageable);
 
-        // Create response structure as defined in PaginatedPosts type
         Map<String, Object> response = new HashMap<>();
         response.put("data", postsPage.getContent());
         response.put("total", postsPage.getTotalElements());
@@ -75,14 +69,12 @@ public class PostController {
         return response;
     }
 
-    // Query to get a single post by ID
     @QueryMapping
     public Post post(@Argument String id) {
         Optional<Post> postOptional = postService.singlePost(id);
         return postOptional.orElse(null);
     }
 
-    // Query to get posts by user ID
     @QueryMapping
     public Map<String, Object> postsByUser(
             @Argument String userId,
@@ -93,10 +85,8 @@ public class PostController {
         int pageNum = page != null ? page : 1;
         int pageSize = limit != null ? limit : 10;
 
-        // Get posts by user ID from service
         Page<Post> postsPage = postService.findPostsByUserId(userId, pageNum - 1, pageSize);
 
-        // Create response
         Map<String, Object> response = new HashMap<>();
         response.put("data", postsPage.getContent());
         response.put("total", postsPage.getTotalElements());
@@ -106,7 +96,6 @@ public class PostController {
         return response;
     }
 
-    // Query to get posts by tag
     @QueryMapping
     public Map<String, Object> postsByTag(
             @Argument String tag,
@@ -117,10 +106,8 @@ public class PostController {
         int pageNum = page != null ? page : 1;
         int pageSize = limit != null ? limit : 10;
 
-        // Get posts by tag from service
         Page<Post> postsPage = postService.findPostsByTag(tag, pageNum - 1, pageSize);
 
-        // Create response
         Map<String, Object> response = new HashMap<>();
         response.put("data", postsPage.getContent());
         response.put("total", postsPage.getTotalElements());
@@ -130,7 +117,6 @@ public class PostController {
         return response;
     }
 
-    // Mutation to create a new post
     @MutationMapping
     public Post createPost(@Argument("input") PostCreateInput input) {
         Post post = new Post();
@@ -138,11 +124,10 @@ public class PostController {
         post.setPostImage(input.getPostImage());
         post.setPostTags(input.getPostTags());
         post.setPostOwnerId(input.getPostOwnerId());
-        post.setPostPublishDate(OffsetDateTime.now(ZoneOffset.UTC)  // Use UTC or your desired timezone
+        post.setPostPublishDate(OffsetDateTime.now(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         post.setPostLikes(0);
 
-        // Verify user exists before creating post
         Optional<User> userOpt = userService.singleUser(input.getPostOwnerId());
         if (userOpt.isEmpty()) {
             throw new IllegalArgumentException("User with ID " + input.getPostOwnerId() + " not found");
@@ -151,7 +136,6 @@ public class PostController {
         return postService.createPost(post);
     }
 
-    // Mutation to update an existing post
     @MutationMapping
     public Post updatePost(@Argument String id, @Argument("input") PostCreateInput input) {
         Post post = new Post();
@@ -163,7 +147,6 @@ public class PostController {
         return postService.updatePost(id, post);
     }
 
-    // Mutation to delete a post
     @MutationMapping
     public String deletePost(@Argument String id) {
         postService.deletePost(id);

@@ -15,18 +15,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Controller
-public class TagGraphQLController {
+public class TagController {
 
     private final TagService tagService;
 
     @Autowired
-    public TagGraphQLController(TagService tagService) {
+    public TagController(TagService tagService) {
         this.tagService = tagService;
     }
 
     @QueryMapping
     public List<Tag> tags(@Argument Integer page, @Argument Integer limit) {
-        // Default values if not provided
         int pageNum = page != null ? page : 0;
         int pageSize = limit != null ? limit : 10;
 

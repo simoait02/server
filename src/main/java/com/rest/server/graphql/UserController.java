@@ -4,6 +4,8 @@ package com.rest.server.graphql;
 import com.rest.server.models.User;
 import com.rest.server.models.UserDto;
 import com.rest.server.services.UserService;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
@@ -36,7 +38,7 @@ public class UserController {
     ) {
         Page<User> usersPage = userService.allUsers(
                 PageRequest.of(
-                        page != null ? page - 1 : 0,  // Page numbers start from 1 in client
+                        page != null ? page - 1 : 0,
                         limit != null ? limit : 10
                 )
         );
@@ -46,7 +48,7 @@ public class UserController {
                         .map(this::convertToDto)
                         .toList(),
                 (int) usersPage.getTotalElements(),
-                usersPage.getNumber() + 1,  // Adjust for 1-based index
+                usersPage.getNumber() + 1,
                 usersPage.getSize()
         );
     }
@@ -77,7 +79,6 @@ public class UserController {
         return id;
     }
 
-    // Conversion methods
     private UserDto convertToDto(User user) {
         UserDto dto = new UserDto();
         dto.setId(user.getId());
@@ -102,7 +103,6 @@ public class UserController {
         user.setUserGender(input.getGender());
         user.setUserPassword(input.getPassword());
 
-        // Handle date parsing
         if (input.getDateOfBirth() != null) {
             try {
                 user.setUserDateOfBirth(String.valueOf(LocalDateTime.parse(input.getDateOfBirth())));
@@ -114,10 +114,9 @@ public class UserController {
         user.setUserPhone(input.getPhone());
         user.setUserPicture(input.getPicture());
 
-        // Set register date to current date-time
         user.setUserRegisterDate(
-                OffsetDateTime.now(ZoneOffset.UTC)  // Use UTC or your desired timezone
-                        .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)  // RFC3339-compliant
+                OffsetDateTime.now(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
         );
 
         return user;
@@ -131,7 +130,6 @@ public class UserController {
         user.setUserLastName(input.getLastName());
         user.setUserGender(input.getGender());
 
-        // Handle date parsing
         if(input.getDateOfBirth() != null) {
             try {
                 user.setUserDateOfBirth(String.valueOf(LocalDateTime.parse(input.getDateOfBirth())));
@@ -160,7 +158,7 @@ public class UserController {
         }
     }
 
-    // Pagination wrapper class
+    @Getter
     public static class PaginatedUsers {
         private final List<UserDto> data;
         private final int total;
@@ -174,45 +172,25 @@ public class UserController {
             this.limit = limit;
         }
 
-        public List<UserDto> getData() { return data; }
-        public int getTotal() { return total; }
-        public int getPage() { return page; }
-        public int getLimit() { return limit; }
     }
 
-    // Input types
+    @Setter
+    @Getter
     public static class UserCreateInput {
         private String title;
         private String firstName;
         private String lastName;
         private String email;
-        private String password;  // Added password field
+        private String password;
         private String gender;
         private String dateOfBirth;
         private String phone;
         private String picture;
 
-        // Getters and Setters
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getFirstName() { return firstName; }
-        public void setFirstName(String firstName) { this.firstName = firstName; }
-        public String getLastName() { return lastName; }
-        public void setLastName(String lastName) { this.lastName = lastName; }
-        public String getEmail() { return email; }
-        public void setEmail(String email) { this.email = email; }
-        public String getPassword() { return password; }  // Added
-        public void setPassword(String password) { this.password = password; }  // Added
-        public String getGender() { return gender; }
-        public void setGender(String gender) { this.gender = gender; }
-        public String getDateOfBirth() { return dateOfBirth; }
-        public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getPicture() { return picture; }
-        public void setPicture(String picture) { this.picture = picture; }
     }
 
+    @Getter
+    @Setter
     public static class UserUpdateInput {
         private String title;
         private String firstName;
@@ -222,20 +200,5 @@ public class UserController {
         private String phone;
         private String picture;
 
-        // Getters and Setters
-        public String getTitle() { return title; }
-        public void setTitle(String title) { this.title = title; }
-        public String getFirstName() { return firstName; }
-        public void setFirstName(String firstName) { this.firstName = firstName; }
-        public String getLastName() { return lastName; }
-        public void setLastName(String lastName) { this.lastName = lastName; }
-        public String getGender() { return gender; }
-        public void setGender(String gender) { this.gender = gender; }
-        public String getDateOfBirth() { return dateOfBirth; }
-        public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
-        public String getPhone() { return phone; }
-        public void setPhone(String phone) { this.phone = phone; }
-        public String getPicture() { return picture; }
-        public void setPicture(String picture) { this.picture = picture; }
     }
 }
